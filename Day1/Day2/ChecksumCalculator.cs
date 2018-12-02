@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using SharedLibrary;
 
@@ -36,6 +37,36 @@ namespace Day2
             }
 
             return characterTwoTimes * characterThreeTimes;
+        }
+
+        public static string FindCommonLetters()
+        {
+            var lines = FileHelper.GetLines(DirectoryName).ToList();
+
+            foreach (var line in lines)
+            {
+                foreach (var lineToCompare in lines)
+                {
+                    var differentCharacterIndexes = new HashSet<int>();
+
+                    for (var i = 0; i < line.Length; i++)
+                    {
+                        if (line[i] != lineToCompare[i])
+                        {
+                            differentCharacterIndexes.Add(i);
+                        }
+
+                        if (differentCharacterIndexes.Count > 1) break;
+                    }
+
+                    if (differentCharacterIndexes.Count == 1)
+                    {
+                        return line.Remove(differentCharacterIndexes.First(), 1);
+                    }
+                }
+            }
+
+            return "No two entries differ by just one character!";
         }
     }
 }
