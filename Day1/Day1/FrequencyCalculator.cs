@@ -2,31 +2,26 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using SharedLibrary;
 
 namespace Day1
 {
     public class FrequencyCalculator
     {
-        private const string FileName = "PuzzleInput.txt";
+        private const string DirectoryName = "Day1";
 
         public static int CalculateFrequency()
         {
-            var calculatedFrequency = 0;
+            var lines = FileHelper.GetLines(DirectoryName);
 
-            var lines = GetLines();
-            foreach (var line in lines)
-            {
-                calculatedFrequency += GetNumber(line);
-            }
-
-            return calculatedFrequency;
+            return lines.Sum(GetNumber);
         }
 
         public static int CalculateFrequencyReachedTwice()
         {
             var reachedFrequencies = new HashSet<int> { 0 };
             var frequencyReachedTwice = false;
-            var lines = GetLines().ToList();
+            var lines = FileHelper.GetLines(DirectoryName).ToList();
             var calculatedFrequency = 0;
 
             while (!frequencyReachedTwice)
@@ -55,15 +50,6 @@ namespace Day1
             var number = int.Parse(line.Substring(1));
 
             return line[0] == '+' ? number : -number;
-        }
-
-        private static IEnumerable<string> GetLines()
-        {
-            var inputPath = Path.Combine(Environment.CurrentDirectory, @"Data\", FileName);
-
-            var lines = File.ReadLines(inputPath);
-
-            return lines;
         }
     }
 }
