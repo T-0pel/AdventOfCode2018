@@ -17,6 +17,7 @@ namespace Day3
             return fabricArray.Cast<HashSet<int>>().Count(i => i != null && i.Count > 1);
         }
 
+        // Could be interesting to do a time comparison with solution that validates overlap on the fly
         public static int GetClaimWithoutOverlap()
         {
             var fabricArray = GetFabricArrayWithClaimIds();

@@ -2,11 +2,11 @@
 {
     public class Claim
     {
-        public int Id { get; private set; }
-        public int LeftEdge { get; private set; }
-        public int TopEdge { get; private set; }
-        public int Width { get; private set; }
-        public int Height { get; private set; }
+        public int Id { get; }
+        public int LeftEdge { get; }
+        public int TopEdge { get; }
+        public int Width { get; }
+        public int Height { get; }
 
         public Claim(string line)
         {
