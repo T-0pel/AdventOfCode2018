@@ -11,39 +11,40 @@ namespace Day5
         {
             var line = FileHelper.GetLines("Day5").First();
 
-            var isDone = false;
-            var previousLetter = '-';
-            var resultString = line;
-            var indexesToDelete = new HashSet<int>();
-            while (!isDone)
+            var distinctLetters = new HashSet<char>(line);
+            var shortestPolymerLength = int.MaxValue;
+
+            foreach (var distinctLetter in distinctLetters)
             {
-                indexesToDelete.Clear();
-                var changeInCycle = false;
+                var helperLine = line;
+                helperLine = helperLine.Replace(distinctLetter.ToString(), "", StringComparison.CurrentCultureIgnoreCase);
+
                 var index = 0;
-                foreach (var letter in line)
+                var previousLetter = '-';
+                while (index < helperLine.Length)
                 {
+                    var letter = helperLine[index];
+
                     if (string.Equals(previousLetter.ToString(), letter.ToString(), StringComparison.CurrentCultureIgnoreCase) &&
                         char.IsUpper(previousLetter) == char.IsLower(letter))
                     {
-                        changeInCycle = true;
-                        indexesToDelete.Add(index);
+                        helperLine = helperLine.Remove(--index, 2);
+                    }
+                    else
+                    {
+                        index++;
                     }
 
-                    previousLetter = letter;
-                    index++;
+                    previousLetter = index == 0 ? '-' : helperLine[index - 1];
                 }
 
-                foreach (var i in indexesToDelete.OrderByDescending(ii => ii))
+                if (shortestPolymerLength > helperLine.Length)
                 {
-                    resultString = resultString.Remove(i, 2);
+                    shortestPolymerLength = helperLine.Length;
                 }
-
-                line = resultString;
-                isDone = !changeInCycle;
             }
 
-            Console.WriteLine(resultString);
-            Console.WriteLine(resultString.Length);
+            Console.WriteLine(shortestPolymerLength);
             Console.ReadKey();
         }
     }
