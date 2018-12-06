@@ -11,7 +11,7 @@ namespace Day5
         {
             var line = FileHelper.GetLines("Day5").First();
 
-            var distinctLetters = new HashSet<char>(line);
+            var distinctLetters = new HashSet<char>(line.ToLower());
             var shortestPolymerLength = int.MaxValue;
 
             foreach (var distinctLetter in distinctLetters)
