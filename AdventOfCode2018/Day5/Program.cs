@@ -29,6 +29,7 @@ namespace Day5
                         char.IsUpper(previousLetter) == char.IsLower(letter))
                     {
                         helperLine = helperLine.Remove(--index, 2);
+                        break;
                     }
                     else
                     {
