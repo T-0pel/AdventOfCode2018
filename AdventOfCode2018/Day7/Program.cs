@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 
 namespace Day7
 {
@@ -9,7 +10,7 @@ namespace Day7
     {
         private static List<Step> _steps;
         private static string _correctOrder;
-        private static HashSet<string> _blockedStepsCodes = new HashSet<string>();
+        private static int _usedThreads;
 
         static void Main(string[] args)
         {
@@ -38,31 +39,78 @@ namespace Day7
                 step.NextSteps.Add(prerequisiteStep);
             }
 
-            GetCorrectOrder(_steps.First(s => s.PrerequisiteSteps.Count == 0));
+            var isDone = false;
+            while (!isDone)
+            {
+                if (_steps.Count(s => s.IsDone) != _steps.Count)
+                {
+                    var stepToDo = _steps.Where(s => !s.IsDone && !s.IsWorkedOn && s.PrerequisiteSteps.Count(ps => ps.IsDone) == s.PrerequisiteSteps.Count).OrderBy(s => s.LetterCode)
+                        .FirstOrDefault();
+
+                    if (stepToDo != null && _usedThreads < 2)
+                    {
+                        stepToDo.IsWorkedOn = true;
+                        _usedThreads++;
+                        var thread = new Thread(() => ExecuteTask(stepToDo.LetterCode));
+                        thread.Start();
+                    }
+                }
+                else
+                {
+                    isDone = true;
+                }
+            }
+
             Console.WriteLine(_correctOrder);
             Console.ReadKey();
         }
 
+        private static void ExecuteTask(string stepToDoCode)
+        {
+            var stepToDo = _steps.First(s => s.LetterCode == stepToDoCode);
+
+            Thread.Sleep(stepToDo.Length);
+
+            _correctOrder += stepToDo.LetterCode;
+            stepToDo.IsDone = true;
+            _usedThreads--;
+        }
+
+        private static void SomeonesSolution()
+        {
+            var dependencies = new List<(string pre, string post)>();
+
+            var lines = FileHelper.GetLines("Day7");
+            lines.ToList().ForEach(x => dependencies.Add((x.Split(' ').ElementAt(1), x.Split(' ').ElementAt(7))));
+
+            var allSteps = dependencies.Select(x => x.pre).Concat(dependencies.Select(x => x.post)).Distinct().OrderBy(x => x).ToList();
+            var result = string.Empty;
+
+            while (allSteps.Any())
+            {
+                var valid = allSteps.First(s => !dependencies.Any(d => d.post == s));
+
+                _correctOrder += valid;
+
+                allSteps.Remove(valid);
+                dependencies.RemoveAll(d => d.pre == valid);
+            }
+        }
+
         private static void GetCorrectOrder(Step step)
         {
-            _correctOrder += step.LetterCode;
-            step.IsDone = true;
-            _blockedStepsCodes.Remove(step.LetterCode);
-
-            var blockedSteps = step.NextSteps.Where(s => s.PrerequisiteSteps.Count(ps => ps.IsDone) != s.PrerequisiteSteps.Count);
-            foreach (var blockedStep in blockedSteps)
+            if (!step.IsDone)
             {
-                _blockedStepsCodes.Add(blockedStep.LetterCode);
+                _correctOrder += step.LetterCode;
+                step.IsDone = true;
             }
 
-            foreach (var nextStep in step.NextSteps.Where(s => s.PrerequisiteSteps.Count(ps => ps.IsDone) == s.PrerequisiteSteps.Count).OrderBy(s => s.LetterCode))
-            {
-                GetCorrectOrder(nextStep);
-            }
+            var possibleNextSteps = step.NextSteps.Where(s => !s.IsDone && s.PrerequisiteSteps.Count(ps => ps.IsDone) == s.PrerequisiteSteps.Count)
+                .OrderBy(s => s.LetterCode).ToList();
 
-            foreach (var blockedStepsCode in _blockedStepsCodes)
+            if (possibleNextSteps.Any())
             {
-                GetCorrectOrder(_steps.First(s => s.LetterCode == blockedStepsCode));
+                GetCorrectOrder(possibleNextSteps.First());
             }
         }
     }
