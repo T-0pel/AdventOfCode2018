@@ -10,7 +10,7 @@ namespace Day7
     {
         private static List<Step> _steps;
         private static string _correctOrder;
-        private static int _usedThreads;
+        private static int _freeWorkers = 5;
 
         static void Main(string[] args)
         {
@@ -23,7 +23,7 @@ namespace Day7
                 var step = _steps.FirstOrDefault(s => s.LetterCode == stepCode);
                 if (step == null)
                 {
-                    step = new Step { LetterCode = stepCode };
+                    step = new Step(stepCode);
                     _steps.Add(step);
                 }
 
@@ -31,7 +31,7 @@ namespace Day7
                 var prerequisiteStep = _steps.FirstOrDefault(s => s.LetterCode == prerequisiteCode);
                 if (prerequisiteStep == null)
                 {
-                    prerequisiteStep = new Step { LetterCode = prerequisiteCode };
+                    prerequisiteStep = new Step(prerequisiteCode);
                     _steps.Add(prerequisiteStep);
                 }
 
@@ -40,19 +40,36 @@ namespace Day7
             }
 
             var isDone = false;
+            var timeElapsed = -1;
             while (!isDone)
             {
+                timeElapsed++;
                 if (_steps.Count(s => s.IsDone) != _steps.Count)
                 {
-                    var stepToDo = _steps.Where(s => !s.IsDone && !s.IsWorkedOn && s.PrerequisiteSteps.Count(ps => ps.IsDone) == s.PrerequisiteSteps.Count).OrderBy(s => s.LetterCode)
-                        .FirstOrDefault();
-
-                    if (stepToDo != null && _usedThreads < 2)
+                    var workers = _freeWorkers;
+                    for (var i = 0; i < workers; i++)
                     {
-                        stepToDo.IsWorkedOn = true;
-                        _usedThreads++;
-                        var thread = new Thread(() => ExecuteTask(stepToDo.LetterCode));
-                        thread.Start();
+                        var stepToDo = _steps.Where(s => !s.IsDone && !s.IsWorkedOn && s.PrerequisiteSteps.Count(ps => ps.IsDone) == s.PrerequisiteSteps.Count).OrderBy(s => s.LetterCode)
+                            .FirstOrDefault();
+
+                        if (stepToDo != null)
+                        {
+                            stepToDo.IsWorkedOn = true;
+                            _freeWorkers--;
+                        }
+                    }
+
+                    var stepsInProgress = _steps.Where(s => !s.IsDone && s.IsWorkedOn);
+                    foreach (var step in stepsInProgress)
+                    {
+                        step.TimeRemaining--;
+                        if (step.TimeRemaining == 0)
+                        {
+                            step.IsDone = true;
+                            step.IsWorkedOn = false;
+                            _freeWorkers++;
+                            _correctOrder += step.LetterCode;
+                        }
                     }
                 }
                 else
@@ -62,6 +79,7 @@ namespace Day7
             }
 
             Console.WriteLine(_correctOrder);
+            Console.WriteLine(timeElapsed);
             Console.ReadKey();
         }
 
@@ -73,7 +91,7 @@ namespace Day7
 
             _correctOrder += stepToDo.LetterCode;
             stepToDo.IsDone = true;
-            _usedThreads--;
+            _freeWorkers--;
         }
 
         private static void SomeonesSolution()
