@@ -14,43 +14,28 @@ namespace Day9
             var playerScores = new List<long>(new long[NumberOfPlayers]);
             var marbleList = new LinkedList<long>();
             marbleList.AddFirst(0);
-            long lastMarbleWorth = 0;
             long newMarbleValue = 1;
-            LinkedListNode<long> currentNode = marbleList.First;
+            var currentNode = marbleList.First;
             while (LastMarbleWorth > newMarbleValue)
             {
                 if (newMarbleValue % 23 == 0)
                 {
                     var positionLeft = 7;
-                    LinkedListNode<long> scoreNode = currentNode;
+                    var scoreNode = currentNode;
                     while(positionLeft > 0)
                     {
-                        if (scoreNode?.Previous != null)
-                        {
-                            scoreNode = scoreNode.Previous;
-                        }
-                        else
-                        {
-                            scoreNode = marbleList.Last;
-                        }
+                        scoreNode = scoreNode?.Previous ?? marbleList.Last;
                         positionLeft--;
                     }
 
                     currentNode = scoreNode.Next;
-                    lastMarbleWorth = newMarbleValue + scoreNode.Value;
+                    var lastMarbleWorth = newMarbleValue + scoreNode.Value;
                     marbleList.Remove(scoreNode);
                     playerScores[(int)(newMarbleValue % NumberOfPlayers)] += lastMarbleWorth;
                 }
                 else
                 {
-                    if (currentNode.Next == null)
-                    {
-                        currentNode = marbleList.AddAfter(marbleList.First, newMarbleValue);
-                    }
-                    else
-                    {
-                        currentNode = marbleList.AddAfter(currentNode.Next, newMarbleValue);
-                    }
+                    currentNode = marbleList.AddAfter(currentNode.Next ?? marbleList.First, newMarbleValue);
                 }
 
                 newMarbleValue++;
