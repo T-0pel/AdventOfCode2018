@@ -6,47 +6,53 @@ namespace Day9
 {
     class Program
     {
-        private const int NumberOfPlayers = 448;
-        private const int LastMarbleWorth = 71628;
+        private const long NumberOfPlayers = 448;
+        private const long LastMarbleWorth = 71628 * 100;
 
         static void Main(string[] args)
         {
-            var playerScores = new List<int>(new int[NumberOfPlayers]);
-            var marbleList = new List<int> { 0 };
-            var lastMarbleWorth = 0;
-            var newMarbleValue = 1;
-            var currentMarbleIndex = 0;
+            var playerScores = new List<long>(new long[NumberOfPlayers]);
+            var marbleList = new LinkedList<long>();
+            marbleList.AddFirst(0);
+            long lastMarbleWorth = 0;
+            long newMarbleValue = 1;
+            LinkedListNode<long> currentNode = marbleList.First;
             while (LastMarbleWorth > newMarbleValue)
             {
-                int newMarbleIndex;
-
                 if (newMarbleValue % 23 == 0)
                 {
-                    var scoreMarblePosition = currentMarbleIndex - 7;
-                    if (scoreMarblePosition < 0)
+                    var positionLeft = 7;
+                    LinkedListNode<long> scoreNode = currentNode;
+                    while(positionLeft > 0)
                     {
-                        scoreMarblePosition = (marbleList.Count) + scoreMarblePosition;
+                        if (scoreNode?.Previous != null)
+                        {
+                            scoreNode = scoreNode.Previous;
+                        }
+                        else
+                        {
+                            scoreNode = marbleList.Last;
+                        }
+                        positionLeft--;
                     }
-                    lastMarbleWorth = newMarbleValue + marbleList[scoreMarblePosition];
-                    marbleList.RemoveAt(scoreMarblePosition);
-                    playerScores[(newMarbleValue % NumberOfPlayers)] += lastMarbleWorth;
-                    newMarbleIndex = scoreMarblePosition;
+
+                    currentNode = scoreNode.Next;
+                    lastMarbleWorth = newMarbleValue + scoreNode.Value;
+                    marbleList.Remove(scoreNode);
+                    playerScores[(int)(newMarbleValue % NumberOfPlayers)] += lastMarbleWorth;
                 }
                 else
                 {
-                    if (currentMarbleIndex == marbleList.Count - 1)
+                    if (currentNode.Next == null)
                     {
-                        newMarbleIndex = 1;
-                        marbleList.Insert(newMarbleIndex, newMarbleValue);
+                        currentNode = marbleList.AddAfter(marbleList.First, newMarbleValue);
                     }
                     else
                     {
-                        newMarbleIndex = currentMarbleIndex + 2;
-                        marbleList.Insert(newMarbleIndex, newMarbleValue);
+                        currentNode = marbleList.AddAfter(currentNode.Next, newMarbleValue);
                     }
                 }
 
-                currentMarbleIndex = newMarbleIndex;
                 newMarbleValue++;
 
                 //Console.WriteLine(string.Join(' ', marbleList));
