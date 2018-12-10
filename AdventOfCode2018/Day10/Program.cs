@@ -24,7 +24,7 @@ namespace Day10
                 if (yDifference < yLimitPoint)
                 {
                     // Shift to take care of potential negative values
-                    var centre = 500;
+                    const int centre = 500;
 
                     var grid = new char[_points.Max(p => p.PositionX) + centre + 1, _points.Max(p => p.PositionY) + centre + 1];
                     foreach (var point in _points)
@@ -52,15 +52,6 @@ namespace Day10
                 }
 
                 seconds++;
-
-                //for (int x = 0; x < gridSize; x++)
-                //{
-                //    for (int y = 0; y < gridSize; y++)
-                //    {
-                //        Console.Write(grid[x, y] == '#' ? '#' : '.');
-                //    }
-                //    Console.WriteLine();
-                //}
             }
 
             Console.ReadKey();
