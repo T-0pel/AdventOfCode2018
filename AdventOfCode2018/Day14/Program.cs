@@ -10,24 +10,25 @@ namespace Day14
 
         static void Main(string[] args)
         {
-            //Day14Part2();
+            //FasterSolution();
 
             var puzzleInputString = puzzleInput.ToString();
-            var recipesList = new LinkedList<int>();
-            recipesList.AddFirst(3);
-            recipesList.AddLast(7);
-            var workerNodes = new List<LinkedListNode<int>> { recipesList.First, recipesList.Last };
+            var recipesList = new List<int> {3,7};
+            var workerIndex1 = 0;
+            var workerIndex2 = 1;
 
             var potentialOccurrences = new List<string>();
 
             while (!potentialOccurrences.Contains(puzzleInputString))
             {
-                var total = workerNodes[0].Value + workerNodes[1].Value;
+                var workerValue1 = recipesList[workerIndex1];
+                var workerValue2 = recipesList[workerIndex2];
+                var total = workerValue1 + workerValue2;
                 var totalString = total.ToString();
 
                 foreach (var number in totalString)
                 {
-                    recipesList.AddLast(int.Parse(number.ToString()));
+                    recipesList.Add(int.Parse(number.ToString()));
 
                     for (var index = potentialOccurrences.Count - 1; index >= 0; index--)
                     {
@@ -54,22 +55,8 @@ namespace Day14
                     }
                 }
 
-                for (var index = 0; index < workerNodes.Count; index++)
-                {
-                    var workerNode = workerNodes[index];
-                    var iterations = 1 + workerNode.Value;
-                    for (var i = 0; i < iterations; i++)
-                    {
-                        if (workerNode.Next != null)
-                        {
-                            workerNodes[index] = workerNode = workerNode.Next;
-                        }
-                        else
-                        {
-                            workerNodes[index] = workerNode = recipesList.First;
-                        }
-                    }
-                }
+                workerIndex1 = (workerIndex1 + workerValue1 + 1) % recipesList.Count;
+                workerIndex2 = (workerIndex2 + workerValue2 + 1) % recipesList.Count;
 
                 //recipesList.ToList().ForEach(Console.Write);
                 //Console.WriteLine();
@@ -79,7 +66,7 @@ namespace Day14
             Console.ReadKey();
         }
 
-        public static void Day14Part2()
+        public static void FasterSolution()
         {
             int[] numbersToCheck = new int[] { 4,3,0,9,7,1 };
             int index = 0;
