@@ -38,12 +38,13 @@ namespace Day15
 
                 for (GridNode neighbour : grid.getNeighbours(lowestCostNode))
                 {
-                    //                if (!neighbour.isTraversable || closedNodes.contains(neighbour)){
-                    //                    //if (!neighbour.isTraversable){
-                    //                    //    System.out.println("You shall not pass!");
-                    //                    //}
-                    //                    continue;
-                    //                }
+                    if (!neighbour.isTraversable || closedNodes.contains(neighbour))
+                    {
+                        //if (!neighbour.isTraversable){
+                        //    System.out.println("You shall not pass!");
+                        //}
+                        continue;
+                    }
                     int newDistance = lowestCostNode.gCost + calculateDistance(lowestCostNode, neighbour);
                     if (neighbour.gCost > newDistance || !openNodes.contains(neighbour))
                     {
